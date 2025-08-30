@@ -109,4 +109,40 @@ export const getBookById = asyncHandler(async (req, res) => {
   });
 });
 
-export const searchBooks = () => {};
+export const searchBooks = asyncHandler(async (req, res) => {
+  const {
+    q,
+    page = 1,
+    limit = 10,
+    sortBy = "title",
+    order = "asc",
+  } = req.query;
+
+  const currentPage = Math.max(parseInt(page, 10) || 1, 1);
+  const pageLimit = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 50);
+  const skip = (currentPage - 1) * pageLimit;
+
+  let filter = {};
+  if (q && q.trim() !== "") {
+    const regex = new RegExp(q.trim(), "i");
+    filter = {
+      $or: [{ title: regex }, { author: regex }],
+    };
+  }
+
+  const sortOptions = {};
+  sortOptions[sortBy] = order === "desc" ? -1 : 1;
+
+  const [books, total] = await Promise.all([
+    Book.find(filter).sort(sortOptions).skip(skip).limit(pageLimit).lean(),
+    Book.countDocuments(filter),
+  ]);
+
+  res.json({
+    page: currentPage,
+    limit: pageLimit,
+    total,
+    pages: Math.ceil(total / pageLimit),
+    items: books,
+  });
+});

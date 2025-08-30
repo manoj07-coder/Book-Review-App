@@ -2,6 +2,7 @@ import { validationResult } from "express-validator";
 import asyncHandler from "../utils/asyncHandler.js";
 import Book from "../models/Book.js";
 import mongoose from "mongoose";
+import Review from "../models/Review.js";
 
 export const createBook = asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -58,7 +59,54 @@ export const getBookById = asyncHandler(async (req, res) => {
   if (!book) {
     return res.status(404).json({ message: "Book not found" });
   }
-  res.json({ book: { ...book } });
+
+  const reviewPage = Math.max(parseInt(req.query.reviewPage, 10) || 1, 1);
+  const reviewLimit = Math.min(
+    Math.max(parseInt(req.query.reviewLimit, 10) || 5, 1),
+    100
+  );
+  const skip = (reviewPage - 1) * reviewLimit;
+
+  const [reviews, totalReviews] = await Promise.all([
+    Review.find({ book: id })
+      .populate("user", "name email")
+      .sort({ createdBy: -1 })
+      .skip(skip)
+      .limit(reviewLimit)
+      .lean(),
+    Review.countDocuments({ book: id }),
+  ]);
+
+  let avgRating = book.avgRating ?? 0;
+  let numReviews = book.numReviews ?? 0;
+
+  if ((numReviews === 0 && totalReviews > 0) || avgRating === undefined) {
+    const stats = await Review.aggregate([
+      { $match: { book: mongoose.Types.ObjectId(id) } },
+      {
+        $group: {
+          _id: "$book",
+          avgRating: { $avg: "$rating" },
+          numReviews: { $sum: 1 },
+        },
+      },
+    ]);
+    if (stats[0]) {
+      avgRating = stats[0].avgRating;
+      numReviews = stats[0].numReviews;
+    }
+  }
+
+  res.json({
+    book: { ...book, avgRating, numReviews },
+    reviews: {
+      page: reviewPage,
+      limit: reviewLimit,
+      total: totalReviews,
+      pages: Math.ceil(totalReviews / reviewLimit),
+      items: reviews,
+    },
+  });
 });
 
 export const searchBooks = () => {};

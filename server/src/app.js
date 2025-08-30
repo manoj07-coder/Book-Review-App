@@ -1,6 +1,7 @@
 import express from "express";
 import authRoutes from "./routes/auth.routes.js";
 import bookRoutes from "./routes/book.routes.js";
+import reviewRoutes from "./routes/review.routes.js";
 
 const app = express();
 
@@ -12,5 +13,6 @@ app.get("/", (req, res) =>
 
 app.use("/api", authRoutes);
 app.use("/api", bookRoutes);
+app.use("/api", reviewRoutes);
 
 export default app;

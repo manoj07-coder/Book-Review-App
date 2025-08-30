@@ -25,7 +25,7 @@ router.post(
 
 router.get("/books", getBooks);
 
-router.get("/book/:id", getBookById);
+router.get("/books/:id", getBookById);
 
 router.get("/search", searchBooks);
 

@@ -24,3 +24,19 @@ export const signUp = asyncHandler(async (req, res) => {
     token,
   });
 });
+
+export const login = asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array });
+
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user || !(await user.matchPassword(password))) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
+  const token = signToken(user._id);
+  res.json({
+    user: { id: user._id, name: user.name, email: user.email },
+    token,
+  });
+});

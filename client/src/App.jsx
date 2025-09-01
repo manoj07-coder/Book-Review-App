@@ -6,16 +6,18 @@ import NavBar from "./components/NavBar";
 import AddBook from "./pages/AddBook";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
+import BookDetail from "./pages/BookDetail";
 
 const App = () => {
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
       <NavBar />
-      <main>
+      <main className="py-6">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/books/:id" element={<BookDetail />} />
           <Route
             path="/add"
             element={

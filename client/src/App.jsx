@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import NavBar from "./components/NavBar";
 import AddBook from "./pages/AddBook";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Home from "./pages/Home";
 
 const App = () => {
   return (
@@ -12,6 +13,7 @@ const App = () => {
       <NavBar />
       <main>
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route

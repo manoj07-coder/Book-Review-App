@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBooks } from "../features/books/bookSlice";
 import BookCard from "../components/BookCard";
+import Pagination from "../components/Pagination";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -34,6 +35,15 @@ const Home = () => {
           list.items.map((book) => <BookCard key={book._id} book={book} />)
         )}
       </div>
+
+      <Pagination
+        page={list.page}
+        pages={list.pages}
+        onChange={(p) => {
+          setPage(p);
+          dispatch(fetchBooks({ page: p }));
+        }}
+      />
     </div>
   );
 };

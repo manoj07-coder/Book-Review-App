@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchBooksById } from "../features/books/bookSlice";
 import RatingStars from "../components/RatingStars";
-import { createReview } from "../features/reviews/reviewSlice";
+import { createReview, deleteReview } from "../features/reviews/reviewSlice";
 
 const BookDetail = () => {
   const { id } = useParams();
@@ -98,7 +98,17 @@ const BookDetail = () => {
                       review.user &&
                       auth.user.id === review.user._id && (
                         <div>
-                          <button className="text-red-500 text-sm">
+                          <button
+                            onClick={async () => {
+                              if (confirm("Delete Review")) {
+                                await dispatch(
+                                  deleteReview({ reviewId: review._id })
+                                );
+                                dispatch(fetchBooksById({ id }));
+                              }
+                            }}
+                            className="text-red-500 text-sm"
+                          >
                             Delete
                           </button>
                         </div>

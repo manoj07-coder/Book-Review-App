@@ -4,10 +4,23 @@ import api from "../../api/axios";
 export const fetchBooks = createAsyncThunk(
   "books/fetchBooks",
   async (params = {}, thunkAPI) => {
-    const res = await api.get("/books", { params });
+    const endpoint = params.q ? "/search" : "/books";
+    const res = await api.get(endpoint, { params });
     return res.data;
   }
 );
+
+export const createBook = createAsyncThunk(
+  "books/create",
+  async (payload, thunkAPI) => {
+    const token = thunkAPI.getState().auth.token;
+    const res = await api.post("/books", payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  }
+);
+
 export const fetchBooksById = createAsyncThunk(
   "books/fetchBookById",
   async ({ id, reviewPage = 1, reviewLimit = 5 }, thunkAPI) => {
@@ -53,6 +66,18 @@ const bookSlice = createSlice({
         state.current = action.payload;
       })
       .addCase(fetchBooksById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(createBook.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createBook.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list.items.unshift(action.payload);
+      })
+      .addCase(createBook.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

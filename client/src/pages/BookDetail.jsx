@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchBooksById } from "../features/books/bookSlice";
 import RatingStars from "../components/RatingStars";
+import { createReview } from "../features/reviews/reviewSlice";
 
 const BookDetail = () => {
   const { id } = useParams();
@@ -26,6 +27,15 @@ const BookDetail = () => {
     (r) => auth.user && r.user && r.user_id === auth.user_id
   );
 
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (!auth.token) return alert("Please Login to Review");
+    await dispatch(createReview({ bookId: id, rating, comment }));
+    dispatch(fetchBooksById({ id }));
+    setRating(5);
+    setComment("");
+  };
+
   return (
     <div className="container mx-auto  p-4">
       <div className="bg-white p-6 shadow rounded">
@@ -38,7 +48,7 @@ const BookDetail = () => {
         <section className="mt-6">
           <h3 className=" text-lg font-semibold">Reviews</h3>
           {auth.user && !hasReviewed && (
-            <form className="mt-4 space-y-2">
+            <form onSubmit={onSubmit} className="mt-4 space-y-2">
               <div>
                 <label className="block text-sm">Rating</label>
                 <select

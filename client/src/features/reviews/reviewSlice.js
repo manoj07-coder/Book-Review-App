@@ -25,6 +25,19 @@ export const deleteReview = createAsyncThunk(
   }
 );
 
+export const updateReview = createAsyncThunk(
+  "review/update",
+  async ({ reviewId, rating, comment }, thunkAPI) => {
+    const token = thunkAPI.getState().auth.token;
+    const res = await api.put(
+      `/reviews/${reviewId}`,
+      { rating, comment },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return res.data;
+  }
+);
+
 const reviewSlice = createSlice({
   name: "review",
   initialState: { loading: false, error: null },
@@ -51,6 +64,17 @@ const reviewSlice = createSlice({
         state.error = false;
       })
       .addCase(deleteReview.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(updateReview.pending, (state) => {
+        state.loading = true;
+        state.error = false;
+      })
+      .addCase(updateReview.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updateReview.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

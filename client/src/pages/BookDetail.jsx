@@ -3,7 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchBooksById } from "../features/books/bookSlice";
 import RatingStars from "../components/RatingStars";
-import { createReview, deleteReview } from "../features/reviews/reviewSlice";
+import {
+  createReview,
+  deleteReview,
+  updateReview,
+} from "../features/reviews/reviewSlice";
 
 const BookDetail = () => {
   const { id } = useParams();
@@ -13,6 +17,8 @@ const BookDetail = () => {
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState(null);
 
   useEffect(() => {
     dispatch(fetchBooksById({ id }));
@@ -30,10 +36,29 @@ const BookDetail = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!auth.token) return alert("Please Login to Review");
-    await dispatch(createReview({ bookId: id, rating, comment }));
+    if (editing && editingReviewId) {
+      await dispatch(
+        updateReview({ reviewId: editingReviewId, rating, comment })
+      );
+    } else {
+      await dispatch(createReview({ bookId: id, rating, comment }));
+    }
     dispatch(fetchBooksById({ id }));
+    resetForm();
+  };
+
+  const handleEdit = (review) => {
+    setEditing(true);
+    setEditingReviewId(review._id);
+    setRating(review.rating);
+    setComment(review.comment);
+  };
+
+  const resetForm = () => {
     setRating(5);
     setComment("");
+    setEditing(false);
+    setEditingReviewId(null);
   };
 
   return (
@@ -47,7 +72,7 @@ const BookDetail = () => {
         <p className="mt-4">{book.description} </p>
         <section className="mt-6">
           <h3 className=" text-lg font-semibold">Reviews</h3>
-          {auth.user && !hasReviewed && (
+          {auth.user && (!hasReviewed || editing) && (
             <form onSubmit={onSubmit} className="mt-4 space-y-2">
               <div>
                 <label className="block text-sm">Rating</label>
@@ -71,9 +96,19 @@ const BookDetail = () => {
                   className="w-full border rounded p-2"
                 />
               </div>
-              <button className="px-3 py-2 bg-indigo-600 text-white rounded">
-                Submit Review
-              </button>
+              <div className="flex space-x-2">
+                <button className="px-3 py-2 bg-indigo-600 text-white rounded">
+                  {editing ? "Update Review" : "Submit Review"}
+                </button>
+                {editing && (
+                  <button
+                    className="px-3 py-2 bg-gray-300 rounded"
+                    onClick={resetForm}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
           )}
 
@@ -97,7 +132,13 @@ const BookDetail = () => {
                     {auth.user &&
                       review.user &&
                       auth.user.id === review.user._id && (
-                        <div>
+                        <div className="flex space-x-4 mt-2 text0sm">
+                          <button
+                            onClick={() => handleEdit(review)}
+                            className="text-blue-500"
+                          >
+                            Edit
+                          </button>
                           <button
                             onClick={async () => {
                               if (confirm("Delete Review")) {

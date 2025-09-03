@@ -22,13 +22,6 @@ const NavBar = () => {
         </Link>
 
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center bg-gray-100 rounded-md px-2 py-1 gap-2">
-            <Search size={16} />
-            <input
-              placeholder="Search by Author or Title"
-              className="bg-transparent outline-none text-sm"
-            />
-          </div>
           <Link
             to="/add"
             className="hidden sm:inline-block bg-indigo-600 text-white px-3  py-1 rounded-md"

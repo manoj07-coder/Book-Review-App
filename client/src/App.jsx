@@ -10,9 +10,9 @@ import BookDetail from "./pages/BookDetail";
 
 const App = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="">
       <NavBar />
-      <main className="py-6">
+      <main className="">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<Signup />} />

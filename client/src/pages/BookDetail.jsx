@@ -131,7 +131,8 @@ const BookDetail = () => {
                     <p>{review.comment}</p>
                     {auth.user &&
                       review.user &&
-                      auth.user.id === review.user._id && (
+                      auth.user.id === review.user._id &&
+                      !editing && (
                         <div className="flex space-x-4 mt-2 text0sm">
                           <button
                             onClick={() => handleEdit(review)}

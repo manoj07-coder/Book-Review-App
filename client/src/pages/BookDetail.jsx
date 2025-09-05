@@ -41,6 +41,8 @@ const BookDetail = () => {
   const [editing, setEditing] = useState(false);
   const [editingReviewId, setEditingReviewId] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [reviewToDelete, setReviewToDelete] = useState(null);
 
   const { toast } = useToast();
 
@@ -226,21 +228,8 @@ const BookDetail = () => {
                         </motion.button>
                         <motion.button
                           onClick={async () => {
-                            if (window.confirm("Delete Review")) {
-                              await dispatch(
-                                deleteReview({ reviewId: review._id })
-                              );
-                              dispatch(fetchBooksById({ id }));
-                              toast({
-                                title: (
-                                  <div className="flex items-center gap-2 text-red-600">
-                                    <XCircle className="w-5 h-5" />
-                                    <span>Review Deleted</span>
-                                  </div>
-                                ),
-                                description: "Your review has been removed.",
-                              });
-                            }
+                            setReviewToDelete(review);
+                            setShowDeleteDialog(true);
                           }}
                           className="p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600"
                         >
@@ -255,7 +244,7 @@ const BookDetail = () => {
         </section>
       </motion.div>
 
-      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+      {/* <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
         <DialogContent className="sm:max-w-md text-center">
           <DialogHeader>
             <DialogTitle className="text-green-600 ">
@@ -265,6 +254,55 @@ const BookDetail = () => {
           <p className="text-gray-500">
             Your review has been submitted successfully.
           </p>
+        </DialogContent>
+      </Dialog> */}
+
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="w-5 h-5" />
+              Delete Review?
+            </DialogTitle>
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete this review? This action cannot be
+              undone.
+            </p>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
+              onClick={() => {
+                setShowDeleteDialog(false);
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white"
+              onClick={async () => {
+                if (reviewToDelete) {
+                  await dispatch(
+                    deleteReview({ reviewId: reviewToDelete._id })
+                  );
+                  dispatch(fetchBooksById({ id }));
+                  toast({
+                    title: (
+                      <div className="flex items-center gap-2 text-red-600 ">
+                        <XCircle className="w-5 h-5 " />
+                        <span>Review Deleted</span>
+                      </div>
+                    ),
+                    description: "Your review has been removed.",
+                  });
+                  setReviewToDelete(null);
+                  setShowDeleteDialog(false);
+                }
+              }}
+            >
+              Delete
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

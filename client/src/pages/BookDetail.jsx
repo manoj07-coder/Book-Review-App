@@ -63,7 +63,7 @@ const BookDetail = () => {
   const { book, reviews } = current;
 
   const hasReviewed = reviews.items.some(
-    (r) => auth.user && r.user && r.user_id === auth.user_id
+    (r) => auth.user && r.user && r.user._id === auth.user.id
   );
 
   const onSubmit = async (e) => {

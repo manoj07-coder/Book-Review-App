@@ -48,9 +48,13 @@ const reviewSlice = createSlice({
         state.loading = true;
         state.error = false;
       })
-      .addCase(createReview.fulfilled, (state) => {
+      .addCase(createReview.fulfilled, (state, action) => {
         state.loading = false;
         state.error = false;
+        if (state.books?.current && state.books.current.reviews) {
+          state.books.current.reviews.items.unshift(action.payload);
+          state.books.current.reviews.total += 1;
+        }
       })
       .addCase(createReview.rejected, (state, action) => {
         (state.loading = false), (state.error = action.error.message);

@@ -8,28 +8,40 @@ const BookCard = ({ book }) => {
   return (
     <motion.article
       whileHover={{ scale: 1.03 }}
-      className="bg-white rounded-2xl shadow-md p-5  border border-gray-200 flex flex-col h-full transition"
+      className="bg-white rounded-2xl shadow-md p-4 sm:p-5 border border-gray-200 flex flex-col h-full transition"
     >
+      {/* Header */}
       <div className="flex items-center gap-2 mb-2">
-        <BookOpen className="w-5 h-5 text-purple-500" />
-        <h3 className="text-lg font-bold text-gray-800">{book.title}</h3>
+        <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
+        <h3 className="text-base sm:text-lg font-bold text-gray-800 line-clamp-1">
+          {book.title}
+        </h3>
       </div>
-      <p className="text-sm text-gray-500 mb-2">By {book.author}</p>
-      <p className="text-xm font-medium text-pink-800">{book.genre}</p>
-      <div className="mt-2 flex items-center gap-2">
+
+      {/* Author & Genre */}
+      <p className="text-xs sm:text-sm text-gray-500 mb-1">By {book.author}</p>
+      <p className="text-xs sm:text-sm font-medium text-pink-800">
+        {book.genre}
+      </p>
+
+      {/* Rating */}
+      <div className="mt-2 flex items-center gap-1 sm:gap-2 flex-wrap">
         <RatingStars rating={book.avgRating ?? 0} />
-        <p className="text-xs text-gray-600">
+        <p className="text-xs sm:text-sm text-gray-600">
           {book.numReviews > 0 ? `(${book.numReviews} reviews)` : ""}
         </p>
       </div>
-      <p className="mt-3 text-sm text-gray-600 line-clamp-3 flex-1">
+
+      {/* Description */}
+      <p className="mt-3 text-xs sm:text-sm text-gray-600 line-clamp-3 flex-1">
         {book.description ?? "No description available"}
       </p>
 
+      {/* CTA Button */}
       <div className="mt-4">
         <Link
           to={`/books/${book._id}`}
-          className="inline-block text-sm font-medium px-4 py-2  rounded-full text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 transition"
+          className="inline-block text-xs sm:text-sm font-medium px-3 py-2 sm:px-4 sm:py-2 rounded-full text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 transition"
         >
           View details →
         </Link>

@@ -9,7 +9,26 @@ import {
   updateReview,
 } from "../features/reviews/reviewSlice";
 import { motion } from "framer-motion";
-import { BookOpen, MessageCircle, User } from "lucide-react";
+import {
+  AlertTriangle,
+  BookOpen,
+  CheckCircle2,
+  Info,
+  MessageCircle,
+  Pencil,
+  Trash2,
+  User,
+  XCircle,
+} from "lucide-react";
+import RatingStarsInput from "@/components/RatingStarsInput";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const BookDetail = () => {
   const { id } = useParams();
@@ -21,13 +40,25 @@ const BookDetail = () => {
   const [comment, setComment] = useState("");
   const [editing, setEditing] = useState(false);
   const [editingReviewId, setEditingReviewId] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const { toast } = useToast();
 
   useEffect(() => {
     dispatch(fetchBooksById({ id }));
   }, [dispatch, id]);
 
   if (loading || !current)
-    return <div className="container mx-auto p-4">Loading...</div>;
+    return (
+      <div className="col-span-full flex justify-center items-center py-12">
+        <motion.div
+          className="w-12 h-12 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"
+          initial={{ rotate: 0 }}
+          // animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1 }}
+        />
+      </div>
+    );
 
   const { book, reviews } = current;
 
@@ -37,16 +68,49 @@ const BookDetail = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!auth.token) return alert("Please Login to Review");
+    if (!auth.token) {
+      toast({
+        title: (
+          <div className="flex items-center gap-2 text-yellow-600">
+            <AlertTriangle className="w-5 h-5" />
+            <span>Login Required</span>
+          </div>
+        ),
+        description: "You must be logged in to leave a review.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (editing && editingReviewId) {
       await dispatch(
         updateReview({ reviewId: editingReviewId, rating, comment })
       );
+      toast({
+        title: (
+          <div className="flex items-center gap-2 text-blue-600">
+            <Info className="w-5 h-5" />
+            <span>Review Updated</span>
+          </div>
+        ),
+        description: "Your review has been successfully updated.",
+      });
     } else {
       await dispatch(createReview({ bookId: id, rating, comment }));
+      toast({
+        title: (
+          <div className="flex items-center gap-2 text-green-600">
+            <CheckCircle2 className="w-5 h-5" />
+            <span>Review Submitted</span>
+          </div>
+        ),
+        description: "Thank you for sharing your thoughts!.",
+      });
     }
     dispatch(fetchBooksById({ id }));
     resetForm();
+
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 2000);
   };
 
   const handleEdit = (review) => {
@@ -95,19 +159,10 @@ const BookDetail = () => {
               className="mt-4 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl p-4 shadow-inner space-y-3"
             >
               <div>
-                <label className="block text-sm font-medium">Rating</label>
-                <select
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-purple-400 p-2 mt-1"
-                  value={rating}
-                  onChange={(e) => setRating(Number(e.target.value))}
-                >
-                  {[5, 4, 3, 2, 1].map((v) => (
-                    <option key={v} value={v}>
-                      {v}
-                    </option>
-                  ))}
-                </select>
+                <label className="block text-sm font-medium mb-1">Rating</label>
+                <RatingStarsInput rating={rating} setRating={setRating} />
               </div>
+
               <div>
                 <label className="block text-sm font-medium">Comment</label>
                 <textarea
@@ -161,26 +216,36 @@ const BookDetail = () => {
                     review.user &&
                     auth.user.id === review.user._id &&
                     !editing && (
-                      <div className="flex gap-4 mt-2 text-sm">
-                        <button
+                      <div className="flex gap-2">
+                        <motion.button
+                          whileTap={{ scale: 0.9 }}
                           onClick={() => handleEdit(review)}
-                          className="text-blue-500 hover:underline"
+                          className="p-2 rounded-full  bg-blue-100 hover:bg-blue-200 text-blue-600"
                         >
-                          Edit
-                        </button>
-                        <button
+                          <Pencil size={18} />
+                        </motion.button>
+                        <motion.button
                           onClick={async () => {
                             if (window.confirm("Delete Review")) {
                               await dispatch(
                                 deleteReview({ reviewId: review._id })
                               );
                               dispatch(fetchBooksById({ id }));
+                              toast({
+                                title: (
+                                  <div className="flex items-center gap-2 text-red-600">
+                                    <XCircle className="w-5 h-5" />
+                                    <span>Review Deleted</span>
+                                  </div>
+                                ),
+                                description: "Your review has been removed.",
+                              });
                             }
                           }}
-                          className="text-red-500 hover:underline"
+                          className="p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600"
                         >
-                          Delete
-                        </button>
+                          <Trash2 size={18} />
+                        </motion.button>
                       </div>
                     )}
                 </motion.div>
@@ -189,6 +254,19 @@ const BookDetail = () => {
           </div>
         </section>
       </motion.div>
+
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="sm:max-w-md text-center">
+          <DialogHeader>
+            <DialogTitle className="text-green-600 ">
+              ✅ Review Saved!
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-gray-500">
+            Your review has been submitted successfully.
+          </p>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

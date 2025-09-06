@@ -31,12 +31,12 @@ const Signup = () => {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-300 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="w-full max-w-sm sm:max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8"
+          className="w-full max-w-sm sm:max-w-md bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-2xl p-6 sm:p-8"
         >
           {/* Header */}
           <div className="flex items-center gap-2 justify-center mb-4">

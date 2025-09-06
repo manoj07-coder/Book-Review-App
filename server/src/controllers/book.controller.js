@@ -33,7 +33,7 @@ export const getBooks = asyncHandler(async (req, res) => {
     filter.genre = { $regex: req.query.genre, $options: "i" };
 
   const [items, total] = await Promise.all([
-    Book.find(filter).sort({ createAt: -1 }).skip(skip).limit(limit),
+    Book.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
     Book.countDocuments(filter),
   ]);
 

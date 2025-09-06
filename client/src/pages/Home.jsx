@@ -9,17 +9,17 @@ import { motion } from "framer-motion";
 const Home = () => {
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
-  const { list, loading } = useSelector((state) => state.books);
   const [q, setQ] = useState("");
+  const { list, loading } = useSelector((state) => state.books);
 
+  // Fetch books on load or when page/q changes
   useEffect(() => {
-    dispatch(fetchBooks({ page }));
-  }, [dispatch, page]);
+    dispatch(fetchBooks({ page, q }));
+  }, [dispatch, page, q]);
 
   const onSearch = (e) => {
     e.preventDefault();
-    setPage(1);
-    dispatch(fetchBooks({ page, q }));
+    setPage(1); // reset to first page when searching
   };
 
   return (
@@ -45,7 +45,10 @@ const Home = () => {
             className="ml-2 outline-none flex-1 md:w-64 text-sm sm:text-base"
             onChange={(e) => setQ(e.target.value)}
           />
-          <button className="ml-2 sm:ml-3 px-3 sm:px-4 py-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm sm:text-base font-medium rounded-full hover:scale-105 transition">
+          <button
+            type="submit"
+            className="ml-2 sm:ml-3 px-3 sm:px-4 py-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm sm:text-base font-medium rounded-full hover:scale-105 transition"
+          >
             Search
           </button>
         </form>
@@ -81,16 +84,15 @@ const Home = () => {
       </div>
 
       {/* Pagination */}
-      <div className="mt-8 flex justify-center">
-        <Pagination
-          page={list.page}
-          pages={list.pages}
-          onChange={(p) => {
-            setPage(p);
-            dispatch(fetchBooks({ page: p }));
-          }}
-        />
-      </div>
+      {list.pages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination
+            page={list.page}
+            pages={list.pages}
+            onChange={(p) => setPage(p)}
+          />
+        </div>
+      )}
     </div>
   );
 };
